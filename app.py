@@ -138,7 +138,6 @@ def update_booking(booking_id, action):
     flash("Booking status updated.", "success")
     return redirect(url_for("dashboard"))
 
-@app.route("/admin/logout", methods=["POST"])
 @app.route("/admin/clear-bookings", methods=["POST"])
 @admin_required
 def clear_bookings():
@@ -146,14 +145,19 @@ def clear_bookings():
         db.execute("DELETE FROM bookings")
     flash("All booking records have been deleted.", "success")
     return redirect(url_for("dashboard"))
+
+
+@app.route("/admin/logout", methods=["POST"])
 @admin_required
 def admin_logout():
     session.clear()
     return redirect(url_for("home"))
 
+
 @app.context_processor
 def inject_year():
     return {"current_year": datetime.now().year}
+
 
 init_db()
 
