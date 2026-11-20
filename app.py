@@ -52,7 +52,7 @@ def init_db():
         )""")
         if db.execute("SELECT COUNT(*) FROM admins").fetchone()[0] == 0:
             username = os.environ.get("ADMIN_USERNAME", "admin")
-            password = os.environ.get("ADMIN_PASSWORD", "ChangeMe123!")
+            password = os.environ.get("ADMIN_PASSWORD", "1234")
             db.execute("INSERT INTO admins (username, password_hash) VALUES (?, ?)",
                        (username, generate_password_hash(password)))
 
@@ -139,6 +139,13 @@ def update_booking(booking_id, action):
     return redirect(url_for("dashboard"))
 
 @app.route("/admin/logout", methods=["POST"])
+@app.route("/admin/clear-bookings", methods=["POST"])
+@admin_required
+def clear_bookings():
+    with connect() as db:
+        db.execute("DELETE FROM bookings")
+    flash("All booking records have been deleted.", "success")
+    return redirect(url_for("dashboard"))
 @admin_required
 def admin_logout():
     session.clear()
