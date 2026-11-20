@@ -16,7 +16,18 @@
 <form class="booking-form" method="post" action="{{ url_for('book') }}">
 <label>Your name<input name="customer_name" required maxlength="80" placeholder="Enter your name"></label>
 <label>Contact number<input name="phone" required maxlength="20" inputmode="tel" placeholder="Enter your phone number"></label>
-<label>Select service<select name="service" required><option value="">Choose a service</option>{% for service in services %}<option>{{ service }}</option>{% endfor %}</select></label>
+<div class="service-selection">
+    <label>Select Services</label>
+
+    <div class="service-options">
+        {% for service in services %}
+        <label class="service-option">
+            <input type="checkbox" name="service" value="{{ service }}">
+            {{ service }}
+        </label>
+        {% endfor %}
+    </div>
+</div>
 <label>Appointment date<input type="date" name="appointment_date" min="{{ '' }}" required></label>
 <label>Appointment time<input type="time" name="appointment_time" required></label>
 <button class="button gold full" type="submit">Submit booking request</button><small>One customer can book each exact date and time. The salon will contact you to confirm availability.</small>
