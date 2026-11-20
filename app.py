@@ -77,22 +77,31 @@ def is_within_hours(day_string, time_string):
 def home():
     return render_template("index.html", salon=SALON, services=SERVICES, hours=HOURS)
 
+
 @app.route("/book", methods=["POST"])
 def book():
     name = request.form.get("customer_name", "").strip()
     phone = request.form.get("phone", "").strip()
-    service = request.form.get("service", "")
+    selected_services = request.form.getlist("service")
     day = request.form.get("appointment_date", "")
     time = request.form.get("appointment_time", "")
-    if not name or not phone or service not in SERVICES or not day or not time:
+
+    if (not name or not phone or not selected_services
+            or any(service not in SERVICES for service in selected_services)
+            or not day or not time):
         flash("Please complete every booking field.", "error")
         return redirect(url_for("home") + "#booking")
+
+    service = ", ".join(selected_services)
+
     if not phone.replace("+", "").replace(" ", "").replace("-", "").isdigit():
         flash("Please enter a valid contact number.", "error")
         return redirect(url_for("home") + "#booking")
+
     if day < date.today().isoformat() or not is_within_hours(day, time):
         flash("Please choose a future date and a time within the salon opening hours.", "error")
         return redirect(url_for("home") + "#booking")
+
     try:
         with connect() as db:
             db.execute("""INSERT INTO bookings
@@ -102,8 +111,10 @@ def book():
     except sqlite3.IntegrityError:
         flash("That appointment time has just been booked. Please choose another time.", "error")
         return redirect(url_for("home") + "#booking")
+
     flash("Your booking request has been received. The salon will contact you to confirm it.", "success")
     return redirect(url_for("home") + "#booking")
+
 
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
